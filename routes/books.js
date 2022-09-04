@@ -2,12 +2,9 @@ const express = require("express");
 
 const { books } = require("../Data/Books.json");
 const { users } = require("../Data/users.json");
-
-const { route } = require("./users");
+const { getAllBooks, getSingleBookById, getAllIssuedBooks, addNewBook, updateBookById, deleteBookByID } = require("../controllers/book-controller");
 
 const router = express.Router();
-
-
 
 /** 
  * Route: /books
@@ -16,12 +13,7 @@ const router = express.Router();
  * Access: Public
  * Parameters: none
  */
-router.get("/", (req, res) => {
-    res.status(200).json({
-        success: true,
-        data: books,
-    })
-});
+router.get("/", getAllBooks);
 
 
 
@@ -33,23 +25,7 @@ router.get("/", (req, res) => {
  * Parameters: none
  */
 
-router.get("/:id", (req, res) => {
-    const { id } = req.params;
-
-    const book = books.find((each) => each.id === id);
-    if (!book) {
-        return res.status(404).json({
-            success: false,
-            message: "Book Not Found",
-        });
-    }
-
-    return res.status(200).json({
-        success: true,
-        data: book,
-    });
-
-});
+router.get("/:id", getSingleBookById);
 
 
 
@@ -61,36 +37,7 @@ router.get("/:id", (req, res) => {
  * Parameters: none
  */
 
-router.get("/issued/by-user", (req, res) => {
-    const usersWithIssuedBooks = users.filter((each) => {
-        if (each.issuedBook) return each;
-
-    });
-
-    const issuedBooks = [];
-
-    usersWithIssuedBooks.forEach((each) => {
-        const book = books.find((book) => book.id === each.issuedBook);
-        book.issuedBy = each.name;
-        book.issuedByID = each.id;
-        book.issuedDate = each.issuedDate;
-        book.returnDate = each.returnDate;
-
-
-        issuedBooks.push(book);
-    });
-
-    if (issuedBooks.length === 0) {
-        return res.status(404).json({
-            success: false,
-            message: "No books issued yet",
-        });
-    }
-    return res.status(200).json({
-        success: true,
-        data: issuedBooks,
-    });
-});
+router.get("/issued/by-user", getAllIssuedBooks);
 
 /**
  * Route : /books
@@ -100,31 +47,7 @@ router.get("/issued/by-user", (req, res) => {
  * Parameters : none
  * Data : Id , Name , Genre , Author , Publisher , Price
  */
-router.post("/", (req, res) => {
-    const { data } = req.body;
-
-    if (!data) {
-        return res.status(400).json({
-            success: false,
-            message: "No Data Provided",
-        });
-    }
-    const book = books.find((each) => each.id === data.id)
-
-    if (book) {
-        return res.status(400).json({
-            success: false,
-            message: "Book alredy exsits",
-        });
-    }
-
-    const allBook = [...books, data];
-
-    return res.status(200).json({
-        success: true,
-        data: allBook,
-    });
-});
+router.post("/", addNewBook);
 
 
 /**
@@ -135,26 +58,7 @@ router.post("/", (req, res) => {
  * Parameters : id
  * 
  */
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    const book = books.find((each) => each.id == id);
-
-
-    if (!book) {
-        return res.status(404).json({
-            success: false,
-            message: "Book to be deleted not found",
-        });
-    }
-
-    const index = books.indexOf(book);
-    books.splice(index, 1);
-
-    return res.status(200).json({
-        success: true,
-        data: books,
-    });
-});
+router.delete('/:id', deleteBookByID);
 
 /**
  * Route : /books/:id
@@ -165,31 +69,7 @@ router.delete('/:id', (req, res) => {
  * Data : Id , Name , Genre , Author , Publisher , Price
  */
 
-router.put("/:id", (req, res) => {
-    const { id } = req.params;
-    const { data } = req.body;
-
-    const book = books.find((each) => each.id === id);
-
-    if (!book) {
-        return res.status(404).json({
-            success: false,
-            message: "Book not Found"
-        })
-    }
-    const updataBook = books.map((each) => {
-        if (each.id === id) {
-            return { ...each, ...data };
-
-        }
-        return each;
-    });
-
-    return res.status(200).json({
-        success: true,
-        data: updataBook,
-    });
-});
+router.put("/:id", updateBookById);
 
 
 module.exports = router;

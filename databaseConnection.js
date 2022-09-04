@@ -9,10 +9,11 @@ function DbConnection() {
     });
 
     const db = mongoose.connection;
+
     db.on("error", console.error.bind(console, "Connection Error :"));
     db.once("open", function () {
         console.log("Db Connected Successfully..")
-    })
+    });
 }
 
 module.exports = DbConnection;

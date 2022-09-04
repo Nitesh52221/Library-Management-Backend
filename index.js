@@ -8,9 +8,6 @@ const booksRouter = require("./routes/books");
 
 dotenv.config();
 const app = express();
-
-
-
 const port = 3000;
 
 app.use(express.json());
@@ -30,11 +27,9 @@ app.get("/", (req, res) => {
 });
 
 
-
-
-
 app.use('/users', usersRouter);
 app.use('/books', booksRouter);
+
 
 app.all("/", (req, res) => {
     res.status(500).json({
